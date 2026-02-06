@@ -1,50 +1,56 @@
-int ledRed = 13;
-int button1 = 10;
-int button2 = 11;
-bool buttonClick1 = false; //button not pressed yet
-bool buttonClick2 = false;
+const int LEDRED = 13;
+const int BUTTON1 = 10;
+const int BUTTON2 = 9;
+bool fasterButton1 = false; //button not pressed yet
+bool slowerButton2 = false;
 
 
 void setup() {
   Serial.begin(9600);
-  pinMode (ledRed, OUTPUT);
-  pinMode (button1, INPUT);
-  pinMode (button2, INPUT);
-  digitalWrite (ledRed, LOW);
-
+  pinMode (LEDRED, OUTPUT);
+  pinMode (BUTTON1, INPUT);
+  pinMode (BUTTON2, INPUT);
+  digitalWrite (LEDRED, LOW);
 }
 
 void loop() {
-  if(buttonClick1 == false && buttonClick2 == false){
-    digitalWrite(ledRed, HIGH);
-    delay(1000);
-    digitalWrite(ledRed, LOW);
-    delay(1000);
-    Serial.print(buttonClick1);
-  } 
+  int buttonState1 = digitalRead(BUTTON1); //detects if button is clicked or not
 
-int buttonState1 = digitalRead(button1); //detects if button is clicked or not
   if(buttonState1 == LOW) {
-    Serial.print("loop entered");
-    buttonClick1 = true;
+    fasterButton1 = true;
+    slowerButton2 = false;
+    Serial.print("Fast loop started!\n");
+    delay(200);
  }
-  if(buttonClick1 == true){
-    digitalWrite(ledRed, HIGH);
-    delay(500);
-    digitalWrite(ledRed, LOW);
-    delay(500);
-    buttonClick2 = false;
-  }
-  int buttonState2 = digitalRead(button2); //current state of button 2
+
+  int buttonState2 = digitalRead(BUTTON2); //current state of button 2
+
   if(buttonState2 == LOW){
-    Serial.print("loop 2 entered");
-    buttonClick2 = true; //switch that holds the click
+    fasterButton1 = false;
+    slowerButton2 = true;
+    Serial.print("Slow loop started!\n");
+    delay(200);
   }
-  if(buttonClick2 == true){
-    digitalWrite(ledRed, HIGH);
+
+  if (!fasterButton1 && !slowerButton2) {
+    // Normal blink (1 second)
+    digitalWrite(LEDRED, HIGH);
+    delay(1000);
+    digitalWrite(LEDRED, LOW);
+    delay(1000);
+  }
+  else if (fasterButton1) {
+    // Fast blink (2 a second)
+    digitalWrite(LEDRED, HIGH);
+    delay(500);
+    digitalWrite(LEDRED, LOW);
+    delay(500);
+  }
+  else if (slowerButton2) {
+    // Slow blink (2 seconds)
+    digitalWrite(LEDRED, HIGH);
     delay(2000);
-    digitalWrite(ledRed, LOW);
+    digitalWrite(LEDRED, LOW);
     delay(2000);
-    buttonClick1 = false;
   }
 }
