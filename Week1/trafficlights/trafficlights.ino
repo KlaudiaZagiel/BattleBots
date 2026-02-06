@@ -1,4 +1,3 @@
-
 int ledRed = 13;
 int ledGreen = 11;
 int ledYellow = 12;
