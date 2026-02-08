@@ -1,38 +1,30 @@
-int ledRed = 13;
-int ledGreen = 11;
-int ledYellow = 12;
-int button = 10;
-bool ledRedState = true; // this checks if red light is on or off
-
+const int LEDRED = 13;
+const int LEDGREEN = 11;
+const int LEDYELLOW = 12;
+const int BUTTON = 10;
+int buttonState = 0;
 
 void setup() {
  Serial.begin(9600); // this tells me what the status is of my software 
- pinMode(ledRed, OUTPUT);
- pinMode(ledGreen, OUTPUT);
- pinMode(ledYellow, OUTPUT);
- pinMode(button, INPUT);
- digitalWrite(ledRed, LOW); //red light starts on
- digitalWrite(ledGreen, HIGH); //green light starts off
- digitalWrite(ledYellow, HIGH); //yellow light starts off
+ pinMode(LEDRED, OUTPUT);
+ pinMode(LEDGREEN, OUTPUT);
+ pinMode(LEDYELLOW, OUTPUT);
+ pinMode(BUTTON, INPUT);
+ digitalWrite(LEDRED, LOW); //red light starts on
+ digitalWrite(LEDGREEN, HIGH); //green light starts off
+ digitalWrite(LEDYELLOW, HIGH); //yellow light starts off
 }
 
 void loop() {
-  int buttonState = digitalRead(button);  
-  if (buttonState == LOW){
-    digitalWrite(ledRed, HIGH);
-    ledRedState = false;
-    Serial.print(ledRedState);
-  }
- if (ledRedState == false){
-  delay(1000);
-  digitalWrite(ledGreen, LOW);
-  delay(3000);
-  digitalWrite(ledGreen, HIGH); //after 3s turn off the green led
-  digitalWrite(ledYellow, LOW);
-  delay(1000);
-  digitalWrite(ledYellow, HIGH);
-  digitalWrite(ledRed, LOW);
-  ledRedState = true; // this checks if the light is on (i said the light is LOW before so - on.)
+  int buttonState = digitalRead(BUTTON); //read whatever the button is doing and store it
+  if (buttonState == LOW){ 
+    digitalWrite(LEDRED, HIGH);
+    digitalWrite(LEDGREEN, LOW);
+    delay(3000);
+    digitalWrite(LEDGREEN, HIGH); //after 3s turn off the green led
+    digitalWrite(LEDYELLOW, LOW);
+    delay(1000);
+    digitalWrite(LEDYELLOW, HIGH);
+    digitalWrite(LEDRED, LOW);
  }
- 
 }
