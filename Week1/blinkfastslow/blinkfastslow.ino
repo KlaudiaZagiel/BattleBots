@@ -1,9 +1,14 @@
 const int LEDRED = 13;
 const int BUTTON1 = 10;
 const int BUTTON2 = 9;
+
 bool fasterButton1 = false; //button not pressed yet
 bool slowerButton2 = false;
 
+int calibrationTime = 200;
+int defaultBlinkingTime = 1000;
+int fastblinkingTime = 500;
+int slowBlinkingTime = 2000;
 
 void setup() {
   Serial.begin(9600);
@@ -20,7 +25,7 @@ void loop() {
     fasterButton1 = true;
     slowerButton2 = false;
     Serial.print("Fast loop started!\n");
-    delay(200);
+    delay(calibrationTime);
  }
 
   int buttonState2 = digitalRead(BUTTON2); //current state of button 2
@@ -29,28 +34,28 @@ void loop() {
     fasterButton1 = false;
     slowerButton2 = true;
     Serial.print("Slow loop started!\n");
-    delay(200);
+    delay(calibrationTime);
   }
 
   if (!fasterButton1 && !slowerButton2) {
     // Normal blink (1 second)
     digitalWrite(LEDRED, HIGH);
-    delay(1000);
+    delay(defaultBlinkingTime);
     digitalWrite(LEDRED, LOW);
-    delay(1000);
+    delay(defaultBlinkingTime);
   }
   else if (fasterButton1) {
     // Fast blink (2 a second)
     digitalWrite(LEDRED, HIGH);
-    delay(500);
+    delay(fastblinkingTime);
     digitalWrite(LEDRED, LOW);
-    delay(500);
+    delay(fastblinkingTime);
   }
   else if (slowerButton2) {
     // Slow blink (2 seconds)
     digitalWrite(LEDRED, HIGH);
-    delay(2000);
+    delay(slowBlinkingTime);
     digitalWrite(LEDRED, LOW);
-    delay(2000);
+    delay(slowBlinkingTime);
   }
 }
