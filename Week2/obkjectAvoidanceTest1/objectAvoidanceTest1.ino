@@ -1,5 +1,5 @@
-const int TRIGGERPIN = 9;
-const int ECHOPIN = 6;
+const int TRIGGERPIN = 5;
+const int ECHOPIN = 13;
 
 long duration; // in microseconds
 float distance; // will store distance in cm
@@ -24,7 +24,7 @@ void loop()
 
   duration = pulseIn(ECHOPIN, LOW);
 
-  distance = duration * 0.0343 / 2;
+  distance = duration * 0.034 / 2;
 
   Serial.print("Distance: ");
   Serial.println(distance);

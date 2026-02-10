@@ -1,17 +1,20 @@
-const int TRIGGERPIN = 9;
-const int ECHOPIN = 6;
-const int MOTORLEFT = 8;
-const int MOTORRIGHT = 7;
+const int TRIGGERPIN = 5;
+const int ECHOPIN = 13;
+const int MOTORLEFT = 10;
+const int MOTORRIGHT = 9;
 
 long duration; // in microseconds
 float distance; // in cm
 
-int calibrationTime = 500;
+int calibrationTime = 200;
 int moveToTheSidesTime = 1000;
 int moveAroundObject = 1500;
 
+// Echo needs to be high to work (HIGH = on)
 void setup ()
 {
+  Serial.begin(9600);
+  
   pinMode(TRIGGERPIN, OUTPUT); // pulse sent by the sensor (trigger)
   pinMode(ECHOPIN, INPUT); // signal that goes and returns
   pinMode(MOTORLEFT, OUTPUT);
@@ -39,40 +42,40 @@ void loop()
 
 float measureDistance()
 {
-  digitalWrite(TRIGGERPIN, LOW);
+  digitalWrite(TRIGGERPIN, HIGH);
   delayMicroseconds(2);
 
-  digitalWrite(TRIGGERPIN, HIGH);
+  digitalWrite(TRIGGERPIN, LOW);
   delayMicroseconds(10);
 
-  digitalWrite(TRIGGERPIN, LOW);
+  digitalWrite(TRIGGERPIN, HIGH);
 
   /* Here pulseIn is reading how long the echo pin was on in microseconds */
   duration = pulseIn(ECHOPIN, HIGH);
 
   /* speed of sound is around 0.0343 and we divide by 2 because the echo is
   the signal sent and retuned*/
-  float distance = duration * 0.0343 / 2;
+  float distance = duration * 0.034 / 2;
 
   return distance;
 }
 
-int moveForward()
-{
-  digitalWrite(MOTORLEFT, LOW);
-  digitalWrite(MOTORRIGHT, LOW);
-}
-
-void stopMotors()
+void moveForward()
 {
   digitalWrite(MOTORLEFT, HIGH);
   digitalWrite(MOTORRIGHT, HIGH);
 }
 
+void stopMotors()
+{
+  digitalWrite(MOTORLEFT, LOW);
+  digitalWrite(MOTORRIGHT, LOW);
+}
+
 void turnLeft90()
 {
-  digitalWrite(MOTORLEFT, HIGH);
-  digitalWrite(MOTORRIGHT, LOW);
+  digitalWrite(MOTORLEFT, LOW);
+  digitalWrite(MOTORRIGHT, HIGH);
 
   delay(calibrationTime); // so it doesn't go immediately to the next action
 
@@ -81,8 +84,8 @@ void turnLeft90()
 
 void turnRight90()
 {
-  digitalWrite(MOTORLEFT, LOW);
-  digitalWrite(MOTORRIGHT, HIGH);
+  digitalWrite(MOTORLEFT, HIGH);
+  digitalWrite(MOTORRIGHT, LOW);
 
   delay(calibrationTime); // so it doesn't go immediately to the next action
 
@@ -93,7 +96,7 @@ void avoidObstacle()
 {
   // Step 1: stop
   stopMotors();
-  delay(calibrationTime);
+  delay(2000);
 
   // Step 2: turn right
   turnRight90();
