@@ -22,7 +22,7 @@ void loop()
 
   digitalWrite(TRIGGERPIN, HIGH);
 
-  duration = pulseIn(ECHOPIN, LOW);
+  duration = pulseIn(ECHOPIN, HIGH);
 
   distance = duration * 0.034 / 2;
 
