@@ -19,9 +19,24 @@ int stage = 1;           //controls the state machine of the robot
 
 
 void setup() {
+
+    //SERVO//
     pinMode(SERVO, OUTPUT);
     digitalWrite(SERVO, 0);
     Serial.begin(9600);
+
+    //Motors//
+    pinMode(MOTOR_1_BACKWARD, LOW);
+    pinMode(MOTOR_1_FORWARD, LOW);
+    pinMode(MOTOR_2_FORWARD, LOW);
+    pinMode(MOTOR_2_BACKWARD, LOW);
+
+    //Sensors//
+    pinMode(ROTATIONWHEEL1, INPUT);
+    pinMode(ROTATIONWHEEL2, INPUT);
+
+    //Button//
+    pinMode(BUTTON, INPUT);
 }
 
 void loop() {
@@ -30,6 +45,7 @@ void loop() {
     if(buttonPressed == false){
     gripper(GRIPPER_OPEN);
     }
+    
     if(buttonPressed == true && stage != 1) {
       gripper(GRIPPER_CLOSE);
     }
@@ -48,7 +64,7 @@ void loop() {
     if(buttonPressed == true){
         if(pulseCount1 <= 24 && pulseCount2 <= 24) {
             startMotorsForward();
-    }else{
+    } else {
         stopMotors();
         pulseCount2 = 0;
         pulseCount1 = 0;
@@ -70,7 +86,7 @@ void loop() {
     case 3:
     if(pulseCount1 <= 24 && pulseCount2 <= 24) {
             startMotorsForward();
-    }else{
+    } else {
         stopMotors();
     }
     break;
@@ -85,6 +101,7 @@ void gripper(int newPulse) {
         if(newPulse > 0) {     //updates pulses if a new value is provided
             pulse = newPulse;
         }
+        
         digitalWrite(SERVO, 1);
         delayMicroseconds(pulse);   //keep it high for the needed pulse duration
         digitalWrite(SERVO, 0);
@@ -106,12 +123,14 @@ void pulseCounter() {
         if(currentStateRotation2 == HIGH && lastStateRotation2 == LOW ){    //pulse detection - by comparing previous state, it prevents multiple pulse counts
             pulseCount2++; 
          }
+    
     lastStateRotation2 = currentStateRotation2; //
 
     bool currentStateRotation1 = digitalRead(ROTATIONWHEEL1);              //reads sensor 1
         if(currentStateRotation1 == HIGH && lastStateRotation1 == LOW ){  //pulse detection - by comparing previous state, it prevents multiple pulse counts
              pulseCount1++;
          }
+    
     lastStateRotation1 = currentStateRotation1;
 }
 
