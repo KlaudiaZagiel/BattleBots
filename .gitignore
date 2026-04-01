@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Arduino build folders (if any)
+*.tmp
+*.bak
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
