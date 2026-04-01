@@ -8,7 +8,7 @@ This repository contains the weekly assignments, which had as the purpose:
 - Prepare us develop the functions we need for the RaceDay itself
 
 Besides the weekly assignments, we too present in this repository the final relay race code corresponding to our part of the race, which completes the goal of the project itself, which is to build an autonomous robot capable of:
-- Detecting the raise of the racing flag, which signalates the beginning of the race
+- Detecting the raise of the racing flag, which signals the beginning of the race
 - Go forward to take hold of the object with the use of the grippers
 - Turn to find the line
 - Follow a line using 8 line sensors
@@ -16,7 +16,7 @@ Besides the weekly assignments, we too present in this repository the final rela
 - Indicating movement direction using NeoPixel LEDs
 - Detecting the drop-off zone
 - Stopping automatically
-- Drop of the object
+- Drop off the object
 - And go backwards to create some space for the next robot to be able to grab a hold of the object and continue the race
 
 The repository is organized to show the full development process from weekly assignments to the final race implementation.
@@ -32,6 +32,7 @@ The robot uses the following hardware components:
 - 1 ultrasonic distance sensor
 - 3 push button
 - 4 NeoPixel LEDs
+- 1 servo motor for gripper control
 
 ## Pin Mapping (final version)
 
@@ -54,6 +55,7 @@ The robot uses the following hardware components:
 |  Line Sensor Left Right   | A2  |
 |  Line Sensor Center Right | A1  |
 |   Line Sensor Most Right  | A0  |
+|       Gripper Servo       | D12 |
 
 ## Main Features
 
@@ -72,7 +74,7 @@ The ultrasonic sensor is continuously measuring the distance in front of the rob
 If an obstacle is detected within the configured threshold, the robot interrupts line following and starts the obstacle avoidance sequence.
 
 ### 4. Obstacle Avoidance
-To save us a little bit more time, we opted to avoid object in a triangle shape way instead of the previously built box shaped avoidance we used in week 2 assingment.
+To save us a little bit more time, we opted to avoid object in a triangle shape way instead of the previously built box shaped avoidance we used in week 2 assignment.
 So, upon object detection the robot:
 - Drives slightly backwards for space safety from the object
 - Turns left around 45 degree
@@ -121,14 +123,14 @@ These values were adjusted experimentally during testing and are all set at the 
 
 ## Weekly Development Process
 
-The weekaly assignments folders documents the step-by-step development of the robot:
+The weekly assignments folders documents the step-by-step development of the robot:
 - Lights control
 - Basic motor control
 - Ultrasonic obstacle detection
 - Obstacle avoidance performance
 - Line sensor reading
 - Line following behavior
-- Gripper behavior testings
+- Gripper behavior testing
 
 This structure shows the progression from simple subsystems tests, to the final autonomous robot, all supported by the final understanding of the importance of the control of robot-stage behaviors.
 
