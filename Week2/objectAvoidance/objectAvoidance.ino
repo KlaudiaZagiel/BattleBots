@@ -11,8 +11,7 @@ int moveToTheSidesTime = 1000;
 int moveAroundObject = 1500;
 
 // Echo needs to be high to work (HIGH = on)
-void setup ()
-{
+void setup () {
   Serial.begin(9600);
   
   pinMode(TRIGGERPIN, OUTPUT); // pulse sent by the sensor (trigger)
@@ -23,8 +22,7 @@ void setup ()
   stopMotors();
 }
 
-void loop() 
-{
+void loop() {
   distance = measureDistance();
 
   Serial.print("Distance: ");
@@ -32,16 +30,14 @@ void loop()
 
   if (distance > 20) {
     moveForward();
-  }
-  else {
+  } else {
     avoidObstacle();
   }
 
   delay(100); // for stability
 }
 
-float measureDistance()
-{
+float measureDistance() {
   digitalWrite(TRIGGERPIN, HIGH);
   delayMicroseconds(2);
 
@@ -60,20 +56,17 @@ float measureDistance()
   return distance;
 }
 
-void moveForward()
-{
+void moveForward() {
   digitalWrite(MOTORLEFT, HIGH);
   digitalWrite(MOTORRIGHT, HIGH);
 }
 
-void stopMotors()
-{
+void stopMotors() {
   digitalWrite(MOTORLEFT, LOW);
   digitalWrite(MOTORRIGHT, LOW);
 }
 
-void turnLeft90()
-{
+void turnLeft90() {
   digitalWrite(MOTORLEFT, LOW);
   digitalWrite(MOTORRIGHT, HIGH);
 
@@ -82,8 +75,7 @@ void turnLeft90()
   stopMotors();
 }
 
-void turnRight90()
-{
+void turnRight90() {
   digitalWrite(MOTORLEFT, HIGH);
   digitalWrite(MOTORRIGHT, LOW);
 
@@ -92,8 +84,7 @@ void turnRight90()
   stopMotors();
 }
 
-void avoidObstacle()
-{
+void avoidObstacle() {
   // Step 1: stop
   stopMotors();
   delay(2000);
