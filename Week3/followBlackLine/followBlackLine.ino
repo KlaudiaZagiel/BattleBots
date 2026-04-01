@@ -27,26 +27,24 @@ void loop() {
 
   // Loop through the every sensor before looping again
   for(int i = 0; i < numSensors; i++) {
-
     // Read pin value variable
     int value = analogRead(sensorPins[i]);
 
     // If the pin value is inferior to our threshold, the sensor is detecting black line
     if(value > threshold) {
-
       // If the sensor detects black on the two sensors on the right,
       // we increase the detection on the right
-      if(i <= 1){
+      if(i <= 1) {
         rightDetected++;
       }
       // If sensor detects black on the middle sensors, we increase
       // the detection on the center
-      else if(i <= 5){
+      else if(i <= 5) {
         centerDetected++;
       }
       // If sensor detects black on the two sensors on the left, we
       // increase the detection on the left
-      else{
+      else {
         leftDetected++;
       }
     }
