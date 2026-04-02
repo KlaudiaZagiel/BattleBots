@@ -168,10 +168,6 @@ Course project for:
 Institution:
  `NHL Stenden University Of Applied Sciences`
 
-## Media
-
-Place here a short video of the robot performing the whole final track?
-
 ## License
 
 This repository is submitted for educational purposes as part of a course project.
