@@ -9,6 +9,8 @@ void loop() {
     Serial.print(analogRead(sensors[i]));
     Serial.print("   ");
   }
+  
   Serial.println();
+  
   delay(200);
 }
