@@ -1,129 +1,52 @@
 #include <Adafruit_NeoPixel.h>
 
-// ==================================================
-// Function Prototypes
-// ==================================================
-void updateWheelPulses();
+const int ledPin = 8;
+const int numLeds = 4;
 
-int readDistanceCm();
+const int unsigned long blinkIntervalMs = 250;
 
-void resetPulseCounts();
-void stopMotors();
+const int  motor1BackwardPin = 11;
+const int motor1ForwardPin = 10;
+const int motor2ForwardPin = 9;
+const int motor2BackwardPin = 6;
 
-void setForwardSpeeds(int leftSpeed, int rightSpeed);
-void startMotorsForward();
-void startMotorsForwardPickup();
-void startMotorsForwardSearch();
-void startMotorsBackward();
-void startMotorLeft();
-void startMotorRight();
+const int rotationWheel1Pin = 2;  // Sensor 1
+const int rotationWheel2Pin = 3;  // Sensor 2
 
-void updateGripperSignal(int newPulse);
+const int startButtonPin = 7;
 
-void turnAllLedsOff();
-void showLeftBlink();
-void showRightBlink();
-void showBackRed();
+const int triggerPin = 4;
+const int echoPin = 13;
 
-int readLineSensorCount();
-void readLinePosition(long &weightedTotalSum, long &totalSum);
-
-// ==================================================
-// Calibration Zone
-// ==================================================
-
-// -------------------------
-// LED settings
-// -------------------------
-const uint8_t ledPin = 8;
-const uint8_t numLeds = 4;
-
-const unsigned long blinkIntervalMs = 250;
-
-// IMPORTANT LED ORDER (based on your current working mapping):
-// 0 = Left Back
-// 1 = Right Back
-// 2 = Right Wing / Front Right
-// 3 = Left Wing / Front Left
-
-// -------------------------
-// Motor pins
-// -------------------------
-const uint8_t motor1BackwardPin = 11;
-const uint8_t motor1ForwardPin = 10;
-const uint8_t motor2ForwardPin = 9;
-const uint8_t motor2BackwardPin = 6;
-
-// -------------------------
-// Wheel encoder / rotation sensors
-// -------------------------
-const uint8_t rotationWheel1Pin = 2;  // Sensor 1
-const uint8_t rotationWheel2Pin = 3;  // Sensor 2
-
-// -------------------------
-// Start button
-// -------------------------
-const uint8_t startButtonPin = 7;
-
-// -------------------------
-// Ultrasonic sensor pins
-// -------------------------
-const uint8_t triggerPin = 4;
-const uint8_t echoPin = 13;
-
-// -------------------------
-// Servo / gripper
-// -------------------------
-const uint8_t servoPin = 12;
+const int servoPin = 12;
 const int gripperOpenPulse = 1600;
 const int gripperClosePulse = 950;
 
-// -------------------------
-// Line sensor pins
-// -------------------------
-const uint8_t sensorPins[8] = {A0, A1, A2, A3, A4, A5, A6, A7};
+const int sensorPins[8] = {A0, A1, A2, A3, A4, A5, A6, A7};
 int sensorWeights[8] = {-7, -5, -3, -1, 1, 3, 5, 7};
 
-// -------------------------
-// Line following tuning
-// -------------------------
-float kp = 26.0f;
-float kd = 12.0f;
+float kp = 26.0;
+float kd = 12.0;
 const int lineThreshold = 650;
 
-// Base speed is chosen automatically from curve sharpness
 const int baseSpeedStraight = 255;
 const int baseSpeedGentle = 220;
 const int baseSpeedMedium = 185;
 const int baseSpeedSharp = 135;
 
-// -------------------------
-// Finish line detection
-// -------------------------
-const unsigned long finishConfirmMs = 65;
+const int unsigned long finishConfirmMs = 65;
 
-// -------------------------
-// Finish action
-// -------------------------
 const int finishBackwardPulses = 40;
 
-// -------------------------
-// Obstacle detection
-// -------------------------
 const int obstacleDistanceCm = 15;
 
-// -------------------------
-// Obstacle avoidance pulses
-// -------------------------
 const int avoidBackwardPulses = 5;
 const int turnLeft45Pulses = 9;
 const int avoidForwardDiagonalPulses = 18;
 const int turnRight90Pulses = 15;
 const int searchLineForwardPulses = 60;
 
-// -------------------------
-// Start / pickup stage
-// -------------------------
+//Start - pickup stage//
 const int startFlagClearDistanceCm = 20;
 const int approachObjectPulses = 18;
 const int forwardAfterPickupPulses = 5;
@@ -132,9 +55,6 @@ const int startSearchLineForwardPulses = 45;
 
 const unsigned long gripperActionTimeMs = 700;
 
-// -------------------------
-// Motor speeds (PWM 0-255)
-// -------------------------
 const int forwardSpeedMotor1 = 250;
 const int forwardSpeedMotor2 = 255;
 
@@ -150,54 +70,30 @@ const int searchSpeedMotor2 = 225;
 const int pickupSpeedMotor1 = 200;
 const int pickupSpeedMotor2 = 205;
 
-// ==================================================
-// End of Calibration Zone
-// ==================================================
-
-// -------------------------
-// NeoPixel object
-// -------------------------
+//LEDS//
 Adafruit_NeoPixel strip(numLeds, ledPin, NEO_RGB + NEO_KHZ800);
 
-// -------------------------
-// LED blink variables
-// -------------------------
 unsigned long previousBlinkTime = 0;
 bool blinkState = false;
 
-// -------------------------
-// Line following variables
-// -------------------------
-float lastError = 0.0f;
+float lastError = 0.0;
 unsigned long finishTimer = 0;
 bool finishDetected = false;
 
-// -------------------------
-// Pulse tracking
-// -------------------------
 int pulseCount1 = 0;
 int pulseCount2 = 0;
 
 bool lastStateRotation1 = LOW;
 bool lastStateRotation2 = LOW;
 
-// -------------------------
-// Button / sequence control
-// -------------------------
 bool sequenceStarted = false;
 
-// -------------------------
-// Servo timing helper
-// -------------------------
 unsigned long gripperStateStartTime = 0;
 
-// ==================================================
-// Robot State Machine
-// ==================================================
+//Robot state//
 enum RobotState {
   IDLE,
 
-  // Start / pickup stage
   WAIT_FOR_FLAG,
   START_OPEN_GRIPPER,
   OPEN_GRIPPER_WAIT,
@@ -212,7 +108,7 @@ enum RobotState {
   START_SEARCH_FIRST_LINE,
   SEARCH_FIRST_LINE,
 
-  // Main stage
+  //Main stage
   LINE_FOLLOWING,
 
   START_AVOID_BACKWARD,
@@ -241,9 +137,6 @@ enum RobotState {
 
 RobotState state = IDLE;
 
-// ==================================================
-// Setup
-// ==================================================
 void setup() {
   // Motor pins
   pinMode(motor1BackwardPin, OUTPUT);
@@ -276,9 +169,6 @@ void setup() {
   turnAllLedsOff();
 }
 
-// ==================================================
-// Main Loop
-// ==================================================
 void loop() {
   updateWheelPulses();
 
@@ -288,7 +178,7 @@ void loop() {
   if (state == IDLE && forwardState == LOW && !sequenceStarted) {
     sequenceStarted = true;
     state = WAIT_FOR_FLAG;
-    Serial.println("Button pressed -> Waiting for raised flag");
+    Serial.println("Button pressed - waiting for raised flag");
   }
 
   // Allow restart after DONE and button released
@@ -303,11 +193,8 @@ void loop() {
       stopMotors();
       turnAllLedsOff();
       break;
-
-    // ==================================================
-    // Start / Pickup Stage
-    // ==================================================
-
+    
+//Start - Pickup Stage
     case WAIT_FOR_FLAG: {
       stopMotors();
       turnAllLedsOff();
@@ -319,7 +206,7 @@ void loop() {
       Serial.println(" cm");
 
       if (distance > startFlagClearDistanceCm) {
-        Serial.println("Flag raised! Opening gripper...");
+        Serial.println("Flag raised - open gripper");
         state = START_OPEN_GRIPPER;
       }
 
@@ -421,9 +308,9 @@ void loop() {
 
       if (totalSum > 0) {
         stopMotors();
-        Serial.println("First line found! Entering LINE_FOLLOWING");
+        Serial.println("First line found - enter LINE_FOLLOWING");
 
-        lastError = 0.0f;
+        lastError = 0.0;
         finishDetected = false;
         state = LINE_FOLLOWING;
       } else if (pulseCount1 >= startSearchLineForwardPulses &&
@@ -436,10 +323,7 @@ void loop() {
       break;
     }
 
-    // ==================================================
-    // Main Line Following
-    // ==================================================
-
+    //Main line following
     case LINE_FOLLOWING: {
       long weightedTotalSum = 0;
       long totalSum = 0;
@@ -456,7 +340,7 @@ void loop() {
           stopMotors();
           turnAllLedsOff();
 
-          Serial.println("Finish Line Detected -> Starting finish sequence");
+          Serial.println("Finish line detected - enter finish sequence");
           state = START_FINISH_OPEN_GRIPPER;
           break;
         }
@@ -475,24 +359,24 @@ void loop() {
         stopMotors();
         turnAllLedsOff();
 
-        Serial.println("Obstacle detected! Starting diagonal avoidance...");
+        Serial.println("Obstacle detected - start diagonal avoidance");
         state = START_AVOID_BACKWARD;
         break;
       }
 
       // Line-following speed control
       int baseSpeed = 0;
-      float position = 0.0f;
+      float position = 0.0;
 
       if (totalSum != 0) {
         position = (float)weightedTotalSum / totalSum;
         float absError = abs(position);
 
-        if (absError < 0.5f) {
+        if (absError < 0.5) {
           baseSpeed = baseSpeedStraight;
-        } else if (absError < 2.0f) {
+        } else if (absError < 2.0) {
           baseSpeed = baseSpeedGentle;
-        } else if (absError < 4.0f) {
+        } else if (absError < 4.0) {
           baseSpeed = baseSpeedMedium;
         } else {
           baseSpeed = baseSpeedSharp;
@@ -530,11 +414,7 @@ void loop() {
       break;
     }
 
-    // ==================================================
-    // Obstacle Avoidance
-    // back -> left 45 -> forward diagonal -> right 90 -> search line
-    // ==================================================
-
+    //Obstacle avoidance
     case START_AVOID_BACKWARD:
       resetPulseCounts();
       Serial.println("START_AVOID_BACKWARD");
@@ -614,9 +494,9 @@ void loop() {
 
       if (totalSum > 0) {
         stopMotors();
-        Serial.println("Line found again! Returning to LINE_FOLLOWING");
+        Serial.println("Line found again - return to LINE_FOLLOWING");
 
-        lastError = 0.0f;
+        lastError = 0.0;
         finishDetected = false;
         state = LINE_FOLLOWING;
       } else if (pulseCount1 >= searchLineForwardPulses &&
@@ -629,10 +509,7 @@ void loop() {
       break;
     }
 
-    // ==================================================
-    // Finish Stage
-    // ==================================================
-
+    //Finish stage
     case START_FINISH_OPEN_GRIPPER:
       gripperStateStartTime = millis();
       Serial.println("START_FINISH_OPEN_GRIPPER");
@@ -672,9 +549,7 @@ void loop() {
   }
 }
 
-// ==================================================
-// Sensor Functions
-// ==================================================
+//Sensor functions
 int readDistanceCm() {
   digitalWrite(triggerPin, LOW);
   delayMicroseconds(2);
@@ -731,9 +606,7 @@ void readLinePosition(long &weightedTotalSum, long &totalSum) {
   }
 }
 
-// ==================================================
-// Pulse Counting
-// ==================================================
+//Pulse counting
 void updateWheelPulses() {
   bool currentStateRotation1 = digitalRead(rotationWheel1Pin);
   bool currentStateRotation2 = digitalRead(rotationWheel2Pin);
@@ -756,9 +629,7 @@ void updateWheelPulses() {
   lastStateRotation2 = currentStateRotation2;
 }
 
-// ==================================================
-// Utility Functions
-// ==================================================
+//Utility functions
 void resetPulseCounts() {
   pulseCount1 = 0;
   pulseCount2 = 0;
@@ -771,9 +642,7 @@ void stopMotors() {
   digitalWrite(motor2BackwardPin, LOW);
 }
 
-// ==================================================
-// Motor Functions
-// ==================================================
+//Motor functions
 void setForwardSpeeds(int leftSpeed, int rightSpeed) {
   // Left motor = MOTOR1
   digitalWrite(motor1BackwardPin, LOW);
@@ -816,8 +685,6 @@ void startMotorsBackward() {
   analogWrite(motor2BackwardPin, backwardSpeedMotor2);
 }
 
-// LEFT turn: only motor 2 moves
-// Your real robot: LEFT turn checks pulseCount1
 void startMotorLeft() {
   digitalWrite(motor1BackwardPin, LOW);
   digitalWrite(motor1ForwardPin, LOW);
@@ -826,8 +693,6 @@ void startMotorLeft() {
   digitalWrite(motor2BackwardPin, LOW);
 }
 
-// RIGHT turn: only motor 1 moves
-// Your real robot: RIGHT turn checks pulseCount2
 void startMotorRight() {
   digitalWrite(motor1BackwardPin, LOW);
   analogWrite(motor1ForwardPin, turnRightSpeed);
@@ -836,9 +701,7 @@ void startMotorRight() {
   digitalWrite(motor2BackwardPin, LOW);
 }
 
-// ==================================================
-// Servo Function
-// ==================================================
+//Servo function
 void updateGripperSignal(int newPulse) {
   static unsigned long timer = 0;
   static int pulse = gripperOpenPulse;
@@ -857,9 +720,7 @@ void updateGripperSignal(int newPulse) {
   }
 }
 
-// ==================================================
-// LED Functions
-// ==================================================
+//LED functions
 void turnAllLedsOff() {
   for (int i = 0; i < numLeds; i++) {
     strip.setPixelColor(i, strip.Color(0, 0, 0));
@@ -927,7 +788,6 @@ void showRightBlink() {
 }
 
 void showBackRed() {
-  // Based on your current physical mapping:
   // 0 = Left Back
   // 1 = Right Back
   // 2 = Right Wing / Front Right
